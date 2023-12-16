@@ -1,0 +1,127 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;700&display=swap'); */
+
+
+body {
+  font-family: 'Archivo', sans-serif;
+  background-color: #FFDBDB;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.registration-panel {
+  background: #ffb6b6;
+  border-radius: 40px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 300px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.registration-panel h2 {
+  font-family: 'League Spartan', sans-serif; 
+  color: #9C3E3E;
+  margin-bottom: 25px;
+}
+
+.registration-panel label {
+  color: #393939;
+  display: block;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.registration-panel input,
+.registration-panel select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+  background-color: #FFDBDB;
+  border-radius: 5px;
+  border: none;
+}
+
+.registration-panel button {
+  background-color: #9C3E3E;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 80%;
+  margin: 0 auto; 
+}
+
+.registration-panel button:hover {
+  background-color: #ff0000;
+}
+
+.login-panel {
+  background: #ffb6b6;
+  border-radius: 40px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 300px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.login-panel h2 {
+  font-family: 'League Spartan', sans-serif;
+  color: #9C3E3E;
+  margin-bottom: 25px;
+}
+
+.login-panel label {
+  color: #393939;
+  display: block;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.login-panel input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+  background-color: #FFDBDB;
+  border-radius: 5px;
+  border: none;
+}
+
+.login-panel button {
+  background-color: #9C3E3E;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 80%;
+  margin: 0 auto;
+}
+
+.login-panel button:hover {
+  background-color: #ff0000;
+}
+  
+@media only screen and (max-width: 767px) {
+    .container {
+      padding: 10px;
+    }
+  
+  }
+  
+  @media only screen and (min-width: 768px) and (max-width: 991px) {
+    .container {
+      padding: 85px;
+    }
+  
+  }
+  
+  @media only screen and (min-width: 992px) {
+  }
