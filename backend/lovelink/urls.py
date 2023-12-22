@@ -23,7 +23,7 @@ from lovelink import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('users.urls', namespace='users')),
-    path('profile/', include('userprofile.urls', namespace='userprofile'))
+    path('notices/', include('notices.urls', namespace='notices')),
 ]
 
 if settings.DEBUG:

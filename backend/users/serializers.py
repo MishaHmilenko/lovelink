@@ -40,3 +40,13 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'birthday', 'gender', 'email', 'phone_number', 'password1', 'password2')
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'birthday', 'bio', 'gender', 'image')
+
+        extra_kwargs = {
+            field: {'required': False} for field in fields
+        }

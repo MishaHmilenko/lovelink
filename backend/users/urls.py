@@ -8,5 +8,9 @@ app_name = 'users'
 urlpatterns = [
     path('login/', views.UserLoginApiView.as_view(), name='login'),
     path('registration/', views.UserCreateApiView.as_view(), name='registration'),
-    path('profile/', views.ProfileView.as_view(), name='profile'),
+
+    path('profile/', views.ProfileUpdate.as_view(), name='profile_by_current_user'),
+    path('profile/<int:pk>/', views.ProfileUpdate.as_view(), name='profile_by_pk'),
+
+    path('', views.UsersAPIList.as_view(), name='main-page'),
 ]
