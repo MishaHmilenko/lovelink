@@ -1,5 +1,4 @@
 import django
-
 from userprofile.serializers import ProfileSerializer
 
 django.setup()

@@ -4,11 +4,11 @@ from django.http import Http404
 from rest_framework import generics, status
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.generics import RetrieveUpdateAPIView, ListAPIView
+from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 
 from users.models import User
-from users.serializers import UserSerializer, ProfileSerializer
+from users.serializers import ProfileSerializer, UserSerializer
 
 
 class UserCreateApiView(generics.CreateAPIView):
