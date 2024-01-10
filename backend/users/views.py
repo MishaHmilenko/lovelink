@@ -12,6 +12,9 @@ from users.serializers import ProfileSerializer, UserSerializer
 
 
 class UserCreateApiView(generics.CreateAPIView):
+
+    """ Creating user """
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -27,6 +30,8 @@ class UserCreateApiView(generics.CreateAPIView):
 
 class UserLoginApiView(ObtainAuthToken):
 
+    """ Login user """
+
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, context={'request': request})
 
@@ -38,15 +43,24 @@ class UserLoginApiView(ObtainAuthToken):
             return Response(data={'errors': serializer.errors}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class ProfileUpdate(RetrieveUpdateAPIView):
+class ProfileRetrieveUpdate(RetrieveUpdateAPIView):
+
+    """ Updating or Retrieving profile """
+
+    queryset = User.objects.all()
     serializer_class = ProfileSerializer
 
     def get_object(self):
+
+        """ Getting object by pk in url or return current user object """
+
         user_id = self.kwargs.get('pk', None)
 
+        # Returns the current user if there isn't pk
         if user_id:
             try:
                 user = User.objects.get(pk=user_id)
+                print(user)
                 return user
             except User.DoesNotExist:
                 raise Http404('User does not exists')
@@ -54,6 +68,9 @@ class ProfileUpdate(RetrieveUpdateAPIView):
             return self.request.user
 
     def retrieve(self, request, *args, **kwargs):
+
+        """ Returning profile by get_object() """
+
         try:
             user = self.get_object()
             serializer = ProfileSerializer(user)
@@ -62,15 +79,19 @@ class ProfileUpdate(RetrieveUpdateAPIView):
             return Response({'error': str(e)}, status=status.HTTP_404_NOT_FOUND)
 
     def patch(self, request, *args, **kwargs):
+
+        """ Updating the profile of the current user """
+
         user = self.get_object()
 
+        # IF other user try to update current user's profile
         if request.user != user:
             return Response(
             {'error': 'You do not have permission to perform this action.'},
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        serializer = ProfileSerializer(self.get_object(), data=request.data)
+        serializer = ProfileSerializer(user, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -79,6 +100,9 @@ class ProfileUpdate(RetrieveUpdateAPIView):
 
 
 class UsersAPIList(ListAPIView):
+
+    """ Getting users by filters """
+
     queryset = User.objects.all()
     serializer_class = ProfileSerializer
 
@@ -86,6 +110,7 @@ class UsersAPIList(ListAPIView):
         queryset = super().get_queryset()
 
         # Filter by gender and age
+        # Example urls for filters /users/?gender=F
 
         age_filter = self.request.query_params.get('age', None)
         gender_filter = self.request.query_params.get('gender', None)

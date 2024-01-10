@@ -4,17 +4,21 @@ from rest_framework.generics import CreateAPIView, RetrieveAPIView, DestroyAPIVi
 from rest_framework.response import Response
 
 from chat.models import Chat, Message
-from chat.permissions import IsUserInChat
+from chat.permissions import IsUserInChat, IsUserOwnerMessage
 from chat.serializers import ChatCreateSerializer, MessagesFromChatSerializer, MessageFromUserSerializer
 
 
 class ChatCreateAPIView(CreateAPIView):
+
+    """ Creating chat if it doesn't exist """
+
     queryset = Chat.objects.all()
     serializer_class = ChatCreateSerializer
 
     def post(self, request, *args, **kwargs):
         members_data = request.data.get('members', [])
         members_data.append({'id': request.user.id})
+        # Checking chat exist
         existing_chat = Chat.objects.filter(members=self.request.user).filter(members=members_data[0].get('id')).exists()
 
         if existing_chat:
@@ -30,11 +34,16 @@ class ChatCreateAPIView(CreateAPIView):
 
 
 class GetMessagesFromChatAPIView(RetrieveAPIView):
-    queryset = Message.objects.all()
+
+    """ Getting all messages from chat """
+
+    queryset = Chat.objects.all()
     serializer_class = MessagesFromChatSerializer
+    permission_classes = [IsUserInChat,]
 
     def get(self, request, *args, **kwargs):
-        messages = Message.objects.filter(chat=self.kwargs.get('pk'))
+        chat = self.get_object()
+        messages = Message.objects.filter(chat=chat)
 
         if len(messages) == 0:
             return Response('Chat is empty', status=status.HTTP_200_OK)
@@ -45,6 +54,9 @@ class GetMessagesFromChatAPIView(RetrieveAPIView):
 
 
 class DeleteChatAPIView(DestroyAPIView):
+
+    """ Deleting chat """
+
     queryset = Chat.objects.all()
     permission_classes = [IsUserInChat]
 
@@ -55,14 +67,36 @@ class DeleteChatAPIView(DestroyAPIView):
 
 
 class CreateMessageAPIView(CreateAPIView):
-    queryset = Message.objects.all()
+
+    """ Creating message """
+
+    queryset = Chat.objects.all()
     serializer_class = MessageFromUserSerializer
+    permission_classes = [IsUserInChat]
+
+    def create(self, request, *args, **kwargs):
+        # For checking if current user have permission
+        self.get_object()
+        super().create(request, *args, **kwargs)
 
 
 class UpdateMessageAPIView(UpdateAPIView):
+
+    """ Updating user message"""
+
     queryset = Message.objects.all()
     serializer_class = MessageFromUserSerializer
+    permission_classes = [IsUserOwnerMessage]
 
 
 class DeleteMessageAPIView(DestroyAPIView):
-    pass
+
+    """ Deleting message """
+
+    queryset = Message.objects.all()
+    permission_classes = [IsUserOwnerMessage]
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({'detail': 'Message deleted successfully'}, status.HTTP_204_NO_CONTENT)

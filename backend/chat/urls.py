@@ -10,8 +10,8 @@ urlpatterns = [
     path('delete/<int:pk>/', views.DeleteChatAPIView.as_view(), name='chat-delete'),
     path('<int:pk>/', views.GetMessagesFromChatAPIView.as_view(), name='chat'),
 
-    path('create-message/', views.CreateMessageAPIView.as_view(), name='create-message'),
-    path('update-message/<int:pk>/', views.UpdateAPIView.as_view(), name='send-message'),
-    path('delete-message/<int:pk>/', views.DeleteChatAPIView.as_view(), name='delete-message'),
+    path('<int:pk>/create-message/', views.CreateMessageAPIView.as_view(), name='create-message'),
+    path('update-message/<int:pk>/', views.UpdateMessageAPIView.as_view(), name='send-message'),
+    path('delete-message/<int:pk>/', views.DeleteMessageAPIView.as_view(), name='delete-message'),
 
 ]
