@@ -1,13 +1,9 @@
-import django
-from userprofile.serializers import ProfileSerializer
-
-django.setup()
-
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from users.models import User
+from users.serializers import ProfileSerializer
 
 
 class ProfileTests(APITestCase):
@@ -23,8 +19,8 @@ class ProfileTests(APITestCase):
             password='otherpassword',
             email='other@example.com'
         )
-        self.url_current_user = reverse('userprofile:profile_by_current_user')
-        self.url_other_user = reverse('userprofile:profile_by_pk', kwargs={'pk': self.other_user.id})
+        self.url_current_user = reverse('users:profile_by_current_user')
+        self.url_other_user = reverse('users:profile_by_pk', kwargs={'pk': self.other_user.id})
 
 # Tests with current user
     def test_user_get_profile_successful(self):
@@ -65,7 +61,7 @@ class ProfileTests(APITestCase):
         self.assertEqual(response.data, expected_data)
 
     def test_non_other_user_profile(self):
-        self.url_other_user = reverse('userprofile:profile_by_pk', kwargs={'pk': 999})
+        self.url_other_user = reverse('users:profile_by_pk', kwargs={'pk': 999})
 
         response = self.client.get(self.url_other_user)
 

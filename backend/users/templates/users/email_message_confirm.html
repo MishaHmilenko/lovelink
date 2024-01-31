@@ -1,0 +1,61 @@
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Confirmation</title>
+    <style>
+        body {
+            font-family: 'Archivo', sans-serif;
+            background-color: #FFDBDB;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .confirmation-panel {
+            background: #ffb6b6;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .confirmation-panel h2 {
+            font-family: 'League Spartan', sans-serif;
+            color: #9C3E3E;
+            margin-bottom: 25px;
+        }
+
+        .confirmation-panel p {
+            color: #393939;
+            margin-bottom: 16px;
+        }
+
+        .confirmation-panel .confirmation-link {
+            display: inline-block;
+            background-color: #9C3E3E;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .confirmation-panel .confirmation-link:hover {
+            background-color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="confirmation-panel">
+        <h2>Email Confirmation</h2>
+        <p>Hello, {{ user }}!<p>
+        <p>Please confirm your email address to activate your account</p>
+        <a href="http://127.0.0.1:8000/users/confirm-email/?token_id={{ token_id }}" class="confirmation-link">Confirm Email</a>
+    </div>
+</body>
+</html>

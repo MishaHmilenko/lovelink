@@ -11,7 +11,7 @@ urlpatterns = [
     path('<int:pk>/', views.GetMessagesFromChatAPIView.as_view(), name='chat'),
 
     path('<int:pk>/create-message/', views.CreateMessageAPIView.as_view(), name='create-message'),
-    path('update-message/<int:pk>/', views.UpdateMessageAPIView.as_view(), name='send-message'),
+    path('update-message/<int:pk>/', views.UpdateMessageAPIView.as_view(), name='update-message'),
     path('delete-message/<int:pk>/', views.DeleteMessageAPIView.as_view(), name='delete-message'),
 
 ]

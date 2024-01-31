@@ -1,14 +1,18 @@
 from datetime import datetime
 
 from django.http import Http404
+from django.shortcuts import render
 from rest_framework import generics, status
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from users.models import User
+from users.models import EmailConfirmationToken, User
 from users.serializers import ProfileSerializer, UserSerializer
+from users.utils import send_confirmation_email
 
 
 class UserCreateApiView(generics.CreateAPIView):
@@ -68,6 +72,7 @@ class ProfileRetrieveUpdate(RetrieveUpdateAPIView):
             return self.request.user
 
     def retrieve(self, request, *args, **kwargs):
+        print(request.user)
 
         """ Returning profile by get_object() """
 
@@ -123,3 +128,61 @@ class UsersAPIList(ListAPIView):
             queryset = queryset.filter(gender=gender_filter)
 
         return queryset
+
+
+class SendEmailConfirmationTokenAPIView(APIView):
+
+    permission_classes = [IsAuthenticated,]
+
+    def post(self, request):
+        user = request.user
+
+        if EmailConfirmationToken.objects.filter(user=user).first():
+            return Response(data={'detail': 'The confirmation token already exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+        token = EmailConfirmationToken.objects.create(user=user)
+        send_confirmation_email(email=user.email, user=user, token_id=token.id)
+        return Response(data={'detail': 'The confirmation token was created'}, status=status.HTTP_201_CREATED)
+
+
+def confirm_email_view(request):
+    token_id = request.GET.get('token_id', None)
+    try:
+        token = EmailConfirmationToken.objects.get(pk=token_id)
+        user = token.user
+        user.is_email_confirmed = True
+        user.save()
+        return render(
+            request,
+            template_name='users/email_confirmation.html',
+            context={'is_email_confirmed': True}
+        )
+
+    except EmailConfirmationToken.DoesNotExist:
+        return render(
+            request,
+            template_name='users/email_confirmation.html',
+            context={'is_email_confirmed': False}
+        )
+
+
+# class SearchingUsersAPIListView(ListAPIView):
+#
+#     """ Getting users by filters """
+#
+#     queryset = User.objects.all()
+#     serializer_class = ProfileSerializer
+#     filter_backends = [filters.SearchFilter]
+#     search_fields = ['username', 'bio', 'gender', 'email']
+#
+#     def get_queryset(self):
+#         queryset = super().get_queryset()
+#
+#         age_filter = self.request.query_params.get('age', None)
+#         if age_filter and age_filter.isdigit():
+#             min_birth_date = datetime(datetime.now().year - int(age_filter), 1, 1)
+#             max_birth_date = datetime(datetime.now().year - int(age_filter), 12, 31)
+#             queryset = queryset.filter(birthday__gte=min_birth_date, birthday__lte=max_birth_date)
+#             print(queryset)
+#
+#         return queryset

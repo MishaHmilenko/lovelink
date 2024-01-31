@@ -1,11 +1,16 @@
 from django.shortcuts import redirect
+from django.urls import reverse
 from rest_framework import status
-from rest_framework.generics import CreateAPIView, RetrieveAPIView, DestroyAPIView, UpdateAPIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import (CreateAPIView, DestroyAPIView,
+                                     RetrieveAPIView, UpdateAPIView)
 from rest_framework.response import Response
 
 from chat.models import Chat, Message
 from chat.permissions import IsUserInChat, IsUserOwnerMessage
-from chat.serializers import ChatCreateSerializer, MessagesFromChatSerializer, MessageFromUserSerializer
+from chat.serializers import (ChatCreateSerializer, MessageFromUserSerializer,
+                              MessagesFromChatSerializer)
+from users.models import User
 
 
 class ChatCreateAPIView(CreateAPIView):
@@ -14,16 +19,23 @@ class ChatCreateAPIView(CreateAPIView):
 
     queryset = Chat.objects.all()
     serializer_class = ChatCreateSerializer
+    permission_classes = [IsAuthenticated,]
 
     def post(self, request, *args, **kwargs):
         members_data = request.data.get('members', [])
         members_data.append({'id': request.user.id})
+
+        try:
+            User.objects.get(pk=members_data[0].get('id'))
+        except User.DoesNotExist as e:
+            return Response(data={'error': str(e)}, status=status.HTTP_404_NOT_FOUND)
+
         # Checking chat exist
         existing_chat = Chat.objects.filter(members=self.request.user).filter(members=members_data[0].get('id')).exists()
 
         if existing_chat:
             chat = Chat.objects.filter(members=self.request.user).filter(members=members_data[0].get('id'))
-            return redirect(f'http://127.0.0.1:8000/chat/{chat.first().id}/')
+            return redirect(reverse('chat:chat', kwargs={'pk': chat.first().id}))
 
         serializer = self.serializer_class(data=request.data, context={'request': request})
         if serializer.is_valid():
@@ -74,10 +86,9 @@ class CreateMessageAPIView(CreateAPIView):
     serializer_class = MessageFromUserSerializer
     permission_classes = [IsUserInChat]
 
-    def create(self, request, *args, **kwargs):
-        # For checking if current user have permission
+    def post(self, request, *args, **kwargs):
         self.get_object()
-        super().create(request, *args, **kwargs)
+        return self.create(request, *args, **kwargs)
 
 
 class UpdateMessageAPIView(UpdateAPIView):

@@ -25,7 +25,9 @@ urlpatterns = [
     path('users/', include('users.urls', namespace='users')),
     path('notices/', include('notices.urls', namespace='notices')),
     path('chat/', include('chat.urls', namespace='chat')),
+    path('payments/', include('payments.urls', namespace='payments')),
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_URL)

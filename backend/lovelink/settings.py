@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'users',
     'notices',
     'chat',
+    'payments',
 ]
 
 MIDDLEWARE = [
@@ -134,7 +135,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'static'
+]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -144,8 +152,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-        # 'rest_framework.authentication.BasicAuthentication',
-        # 'rest_framework.authentication.SessionAuthentication',
     ]
 }
 
@@ -157,6 +163,7 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_HEADERS = [
     'access-control-allow-origin',
     'content-type',
+    'Authorization',
 ]
 
 CORS_ALLOW_METHODS = [
@@ -170,5 +177,19 @@ CORS_ALLOW_METHODS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+
+# Sending emails
+
+# if DEBUG:
+#     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# else:
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = '290819allo@gmail.com'
+EMAIL_HOST_PASSWORD = 'zhyd dbsr aggj wlcl'
+EMAIL_USE_TLS = True
+
+# Stripe
+STRIPE_PUBLISHABLE_KEY = 'pk_test_51OCIWtF91pZqOJqXB2LAAaRc9x3oAYdKtusH3nAXdhsoWBLNL1XvIBQpaAUrLws3eBnSbplGpijgncZvNcag6PIl00UayyjiT9'
+STRIPE_SECRET_KEY = 'sk_test_51OCIWtF91pZqOJqX5thDPLqAfNODMJw1uHw46oBLNHfNNhOVkboKOvq1r0qjvjQCAVQPiibR8wmMAq6W2ENH1oeN009ZaOkDYl'
+STRIPE_ENDPOINT_SECRET = 'whsec_8e953fd27d027957bbc83fb1339223cdf5d52d52dd8d794f38b06931c69e3223'
