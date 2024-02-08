@@ -1,0 +1,21 @@
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Static files
+/static/
+
+# Media files
+/media/
+
+# Environment variables file
+.env
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# PyCharm settings
+/.idea
+*.iml
+.idea/

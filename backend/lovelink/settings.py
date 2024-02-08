@@ -12,18 +12,25 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 
+from celery.schedules import crontab
+
+
+import environ
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+env = environ.Env()
+environ.Env.read_env(env_file=os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-5zxs=ha2@6_u%1--ypocyk4dxs+&^jnv)frt3khw_&nyq@2dwn'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True if env('DEBUG') == 'True' else False
 
 ALLOWED_HOSTS = []
 
@@ -88,11 +95,11 @@ WSGI_APPLICATION = 'lovelink.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'lovelinkDB',
-        'USER': 'user_lovelinkDB',
-        'PASSWORD': '1415342',
-        'HOST': 'localhost',
-        'PORT': '5432'
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST'),
+        'PORT': env('DB_PORT'),
     }
 }
 
@@ -141,6 +148,8 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static'
 ]
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -183,13 +192,30 @@ CORS_ALLOW_CREDENTIALS = True
 # if DEBUG:
 #     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # else:
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = '290819allo@gmail.com'
-EMAIL_HOST_PASSWORD = 'zhyd dbsr aggj wlcl'
-EMAIL_USE_TLS = True
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_PORT = env('EMAIL_PORT')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = env('EMAIL_USE_TLS')
 
 # Stripe
-STRIPE_PUBLISHABLE_KEY = 'pk_test_51OCIWtF91pZqOJqXB2LAAaRc9x3oAYdKtusH3nAXdhsoWBLNL1XvIBQpaAUrLws3eBnSbplGpijgncZvNcag6PIl00UayyjiT9'
-STRIPE_SECRET_KEY = 'sk_test_51OCIWtF91pZqOJqX5thDPLqAfNODMJw1uHw46oBLNHfNNhOVkboKOvq1r0qjvjQCAVQPiibR8wmMAq6W2ENH1oeN009ZaOkDYl'
-STRIPE_ENDPOINT_SECRET = 'whsec_8e953fd27d027957bbc83fb1339223cdf5d52d52dd8d794f38b06931c69e3223'
+STRIPE_PUBLISHABLE_KEY = env('STRIPE_PUBLISHABLE_KEY')
+STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
+STRIPE_ENDPOINT_SECRET = env('STRIPE_ENDPOINT_SECRET')
+
+# Redis
+REDIS_HOST = env('REDIS_HOST')
+REDIS_PORT = env('REDIS_PORT')
+
+# Celery
+CELERY_BROKER_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}'
+CELERY_RESULT_BACKEND = f'redis://{REDIS_HOST}:{REDIS_PORT}'
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+# Celery beat
+CELERY_BEAT_SCHEDULE = {
+    'add-coins-every-24-hours': {
+        'task': 'users.tasks.add_coins',
+        'schedule': crontab(houre='0', minute='0'),
+    },
+}
