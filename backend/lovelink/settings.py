@@ -216,6 +216,6 @@ CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_BEAT_SCHEDULE = {
     'add-coins-every-24-hours': {
         'task': 'users.tasks.add_coins',
-        'schedule': crontab(houre='0', minute='0'),
+        'schedule': crontab(hour='0', minute='0'),
     },
 }
