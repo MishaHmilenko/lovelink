@@ -7,6 +7,7 @@ class User(AbstractUser):
         ('M', 'MALE'),
         ('F', 'FEMALE'),
     ]
+    age = models.PositiveIntegerField()
     image = models.ImageField(upload_to='users_images', blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
     birthday = models.DateField(blank=True, null=True)

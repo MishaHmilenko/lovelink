@@ -1,7 +1,10 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from django.http import Http404
 from django.shortcuts import render
+
+from django_filters import rest_framework as filters
+
 from rest_framework import generics, status
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -10,6 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from users.filters import UsersProfilesFilter
 from users.models import EmailConfirmationToken, User
 from users.serializers import ProfileSerializer, UserSerializer
 from users.utils import send_confirmation_email
@@ -22,10 +26,17 @@ class UserCreateApiView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    def calculate_age(self, birthdate):
+        today = date.today()
+        age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
+        return age
+
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
 
         if serializer.is_valid():
+            age = self.calculate_age(datetime.strptime(request.data.get('birthday'), '%Y-%m-%d'))
+            serializer.validated_data['age'] = age
             serializer.save()
             return Response(data=serializer.data, status=status.HTTP_201_CREATED)
         else:
@@ -104,30 +115,38 @@ class ProfileRetrieveUpdate(RetrieveUpdateAPIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UsersAPIList(ListAPIView):
-
-    """ Getting users by filters """
+class UsersProfilesAPIList(ListAPIView):
 
     queryset = User.objects.all()
     serializer_class = ProfileSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = UsersProfilesFilter
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
 
-        # Filter by gender and age
-        # Example urls for filters /users/?gender=F
-
-        age_filter = self.request.query_params.get('age', None)
-        gender_filter = self.request.query_params.get('gender', None)
-
-        if age_filter is not None:
-            min_birth_date = datetime(datetime.now().year - int(age_filter), 1, 1)
-            max_birth_date = datetime(datetime.now().year - int(age_filter), 12, 31)
-            queryset = queryset.filter(birthday__gte=min_birth_date, birthday__lte=max_birth_date)
-        if gender_filter is not None:
-            queryset = queryset.filter(gender=gender_filter)
-
-        return queryset
+# class UsersAPIList(ListAPIView):
+#
+#     """ Getting users by filters """
+#
+#     queryset = User.objects.all()
+#     serializer_class = ProfileSerializer
+#
+#     def get_queryset(self):
+#         queryset = super().get_queryset()
+#
+#         # Filter by gender and age
+#         # Example urls for filters /users/?gender=F
+#
+#         age_filter = self.request.query_params.get('age', None)
+#         gender_filter = self.request.query_params.get('gender', None)
+#
+#         if age_filter is not None:
+#             min_birth_date = datetime(datetime.now().year - int(age_filter), 1, 1)
+#             max_birth_date = datetime(datetime.now().year - int(age_filter), 12, 31)
+#             queryset = queryset.filter(birthday__gte=min_birth_date, birthday__lte=max_birth_date)
+#         if gender_filter is not None:
+#             queryset = queryset.filter(gender=gender_filter)
+#
+#         return queryset
 
 
 class SendEmailConfirmationTokenAPIView(APIView):
@@ -166,23 +185,4 @@ def confirm_email_view(request):
         )
 
 
-# class SearchingUsersAPIListView(ListAPIView):
-#
-#     """ Getting users by filters """
-#
-#     queryset = User.objects.all()
-#     serializer_class = ProfileSerializer
-#     filter_backends = [filters.SearchFilter]
-#     search_fields = ['username', 'bio', 'gender', 'email']
-#
-#     def get_queryset(self):
-#         queryset = super().get_queryset()
-#
-#         age_filter = self.request.query_params.get('age', None)
-#         if age_filter and age_filter.isdigit():
-#             min_birth_date = datetime(datetime.now().year - int(age_filter), 1, 1)
-#             max_birth_date = datetime(datetime.now().year - int(age_filter), 12, 31)
-#             queryset = queryset.filter(birthday__gte=min_birth_date, birthday__lte=max_birth_date)
-#             print(queryset)
-#
-#         return queryset
+
