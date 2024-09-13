@@ -11,11 +11,6 @@ __pycache__/
 # Environment variables file
 .env
 
-# Docker
-Dockerfile
-docker-compose.yml
-.dockerignore
-
 # PyCharm settings
 /.idea
 *.iml
